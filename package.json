@@ -1,30 +1,24 @@
 {
-  "name": "LedBlink",
-  "description": "easy led blink support;",
-  "description_zh": "简单易用led闪烁控制软件包",  
+  "name": "Uparam",
+  "description": "Manage system parameters with FLASH",
+  "description_zh": "系统参数读写管理、持久化",  
   "keywords": [
-    "LedBlink"
+    "Uparam"
   ],
-  "category": "peripherals",
+  "category": "misc",
   "author": {
     "name": "zpw",
     "email": "aeo1234@qq.com"
   },
   "license": "GPL-2.0",
-  "repository": "https://gitee.com/aeo123/ledblink.git",
+  "repository": "https://github.com/aeo123/uparam.git",
   "icon": "unknown",
-  "homepage": "https://gitee.com/aeo123/ledblink/tree/master",
-  "doc": "https://gitee.com/aeo123/ledblink/blob/master/readme.md",
+  "homepage": "https://github.com/aeo123/uparam.git",
+  "doc": "https://github.com/aeo123/uparam.git",
   "site": [
     {
-      "version": "v1.0.0",
-      "URL": "https://gitee.com/aeo123/ledblink.git",
-      "filename": "LedBlink-1.0.0.zip",
-      "VER_SHA": "ea6d3e235b95e9a59d8dd6c28e80b6da798cf895"
-    },
-    {
       "version": "latest",
-      "URL": "https://gitee.com/aeo123/ledblink.git",
+      "URL": "https://github.com/aeo123/uparam.git",
       "filename": "Null for git package",
       "VER_SHA": "master"
     }

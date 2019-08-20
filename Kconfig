@@ -1,7 +1,7 @@
 
-# Kconfig file for package LedBlink
+# Kconfig file for package UPARAM
 menuconfig PKG_USING_UPARAM
-    bool "Manage parameters saved to FLASH"
+    bool "Manage system parameters with FLASH"
     select PKG_USING_FAL
     default n
 
@@ -10,7 +10,7 @@ if PKG_USING_UPARAM
 
     config PKG_UPARAM_PATH
         string
-        default "/packages/system/uparam"
+        default "/packages/misc/uparam"
 
     choice
         prompt "Version"
