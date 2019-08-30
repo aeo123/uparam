@@ -6,7 +6,7 @@ CPPPATH = [cwd, str(Dir('#'))]
 src     = Glob('*.c')
 
 
-group = DefineGroup('uparam', src, depend = [''], CPPPATH = CPPPATH)
+group = DefineGroup('uparam', src, depend = ['PKG_USING_UPARAM'], CPPPATH = CPPPATH)
 
 Return('group')
 
