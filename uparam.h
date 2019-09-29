@@ -5,7 +5,7 @@
 #include <board.h>
 
 typedef void (*par_default)(void *address, uint8_t size);
-
+#pragma pack(1)
 /* 参数表需要定义的数据结构 */
 typedef struct
 {
@@ -17,7 +17,7 @@ typedef struct
     /* 参数名称 */
     const char *name;
 
-    /* 参数解析的格式 'f'=float，'d'=int，'u'=uint, 
+    /* 参数解析的格式 'f'=float，'d'=int，'u'=uint, 's'=str, 
                      'vb'=byte vector,  'vw'=word vector, 
                      'vd'=dword vector, 'vf'=float vector
      */
@@ -30,7 +30,6 @@ typedef struct
 /* 使用这个来定义参数 */
 typedef const param_define_struct param_list;
 
-#pragma pack(1)
 typedef struct
 {
     /* 参数地址 */
@@ -66,11 +65,9 @@ typedef struct
         uint8_t u8[4];
     } size;
 
- 
     /* 头部校验信息 */
     uint8_t crc;
 } param_header_struct;
-
 #pragma pack()
 
 /* 添加参数 */

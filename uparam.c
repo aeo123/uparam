@@ -52,7 +52,7 @@ rt_err_t uparam_add_list(param_list *list_address, uint16_t list_size)
     }
 
     //分配内存
-    void *new_ls = (param_struct *)rt_realloc(ls, (param_index + 1) * sizeof(param_struct));
+    param_struct *new_ls = (param_struct *)rt_realloc(ls, (param_index + 1) * sizeof(param_struct));
 
     if (new_ls != RT_NULL)
     {
@@ -343,7 +343,7 @@ static void uparam_default()
   */
 static void print_list_header()
 {
-    rt_kprintf("\nFormat show as: f=float,d=int,u=uint,v*=vector(hex or float)\r\n");
+    rt_kprintf("\nFormat show as: f=float,d=int,u=uint,v*=vector(hex or float),s=str\r\n");
     rt_kprintf("Index Param            Address     Size  Format  Value\r\n");
     rt_kprintf("----- ----------       ----------  ----  ------  -----\r\n");
 }
@@ -375,6 +375,10 @@ static void print_element(param_p *pa, uint32_t index, uint32_t offset)
     {
         memcpy(value, (uint8_t *)pa->address, pa->size);
         len = sprintf(buff, "Float   %.3f\r\n", *(float *)(value));
+    }
+    else if (pa_list->type[0] == 's')
+    {
+        len = sprintf(buff, "String  %s\r\n", (char *)pa->address);
     }
     else if (pa_list->type[0] == 'd')
     {
@@ -495,6 +499,8 @@ static param_list *find_param_by_index(uint32_t index)
         }
         pre_index += ls[li].par_list_size;
     }
+
+    return NULL;
 }
 
 /**
@@ -561,11 +567,9 @@ static int uparam_init(void)
         LOG_W("Uparam read failed, reset to default!");
         //初始化参数到默认值
         uparam_default();
-        rt_uint32_t level;
-        //level = rt_hw_interrupt_disable();
+
         //重新写入参数
         uparam_writeall();
-        //rt_hw_interrupt_enable(level);
     }
 
     return RT_EOK;
@@ -587,12 +591,12 @@ static void par(uint8_t argc, char **argv)
 #define CMD_RELOAD_INDEX 5
     const char *help_info[] =
         {
-            [CMD_LIST_INDEX] = "par list  [*/index] [offset]                     - list all param",
-            [CMD_RESET_INDEX] = "par reset [index]                - reset 'index' param to default",
-            [CMD_SET_INDEX] = "par set   [index] [offset] data1 ... dataN  - set index data[offset] to param with the format",
-            [CMD_ERASE_INDEX] = "par erase [yes]                  - erase all param and reset to default",
-            [CMD_FLUSH_INDEX] = "par flush                        - save all param to flash",
-            [CMD_RELOAD_INDEX] = "par reload                       - read all param to ram",
+            "par list  [*/index] [offset]     - list all param",
+            "par reset [index]                - reset 'index' param to default",
+            "par set   [index] [offset] data1 ... dataN  - set index data[offset] to param with the format",
+            "par erase [yes]                  - erase all param and reset to default",
+            "par flush                        - save all param to flash",
+            "par reload                       - read all param to ram",
         };
 
     if (argc < 2)
@@ -606,10 +610,10 @@ static void par(uint8_t argc, char **argv)
     }
     else
     {
-        const char *operator= argv[1];
+        const char *cmd = argv[1];
         uint32_t index;
 
-        if (!strcmp(operator, "list"))
+        if (!strcmp(cmd, "list"))
         {
             if (argc == 2)
             {
@@ -629,7 +633,7 @@ static void par(uint8_t argc, char **argv)
                 print_element(pa, index, offset);
             }
         }
-        else if (!strcmp(operator, "reset"))
+        else if (!strcmp(cmd, "reset"))
         {
             index = strtoul(argv[2], NULL, 0);
             if (index > param_header.cnt.u32)
@@ -641,7 +645,7 @@ static void par(uint8_t argc, char **argv)
             rt_kprintf("reset param , index: %d\r\n", index);
             reset_param_by_index(index);
         }
-        else if (!strcmp(operator, "set"))
+        else if (!strcmp(cmd, "set"))
         {
             if (argc < 5)
             {
@@ -686,6 +690,18 @@ static void par(uint8_t argc, char **argv)
                 long int value_u = (float)atol(argv[4]);
                 memcpy((uint8_t *)pa_list->address, &value_u, pa_list->size);
                 rt_kprintf("set index: %d, to value:%ld\r\n", index, value_u);
+            }
+            else if (pa_list->type[0] == 's')
+            {
+                char *value_s = argv[4];
+                if (strlen(value_s) > pa_list->size)
+                {
+                    rt_kprintf("input value is too long\n");
+                    return;
+                }
+                memset(pa_list->address, 0, pa_list->size);
+                memcpy((uint8_t *)pa_list->address, value_s, strlen(value_s));
+                rt_kprintf("set index: %d, to value:%s\r\n", index, value_s);
             }
             else if (pa_list->type[0] == 'v')
             {
@@ -763,7 +779,7 @@ static void par(uint8_t argc, char **argv)
                 rt_kprintf("\r\n");
             }
         }
-        else if (!strcmp(operator, "erase"))
+        else if (!strcmp(cmd, "erase"))
         {
             if (argc < 3)
             {
@@ -780,11 +796,11 @@ static void par(uint8_t argc, char **argv)
                 rt_kprintf("input yes to erase\r\n");
             }
         }
-        else if (!strcmp(operator, "flush"))
+        else if (!strcmp(cmd, "flush"))
         {
             uparam_flush();
         }
-        else if (!strcmp(operator, "reload"))
+        else if (!strcmp(cmd, "reload"))
         {
             uparam_readall();
         }
