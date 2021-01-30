@@ -399,12 +399,12 @@ static void print_element(param_p *pa, uint32_t index, uint32_t offset)
         {
             convert = (int64_t)(*(int64_t *)(pa->address));
         }
-        len = sprintf(buff, "Intger  %ld\r\n", convert);
+        len = sprintf(buff, "Intger  %lld\r\n", convert);
     }
     else if (pa_list->type[0] == 'u')
     {
         memcpy(value, (uint8_t *)pa->address, pa->size);
-        len = sprintf(buff, "UIntger %ld\r\n", *(uint64_t *)(value));
+        len = sprintf(buff, "UIntger %lld\r\n", *(uint64_t *)(value));
     }
     else if (pa_list->type[0] == 'v')
     {
@@ -676,20 +676,27 @@ static void par(uint8_t argc, char **argv)
             }
             else if (pa_list->type[0] == 'd')
             {
-                long int value_d = (float)atol(argv[4]);
-                unsigned long int value_ud = value_d & 0x7FFFFFFFFFFFFFFF;
+                long long value_d = atoll(argv[4]);
+							  unsigned long long value_ud = (long long)1<<63;
+							  value_ud = value_d & ~value_ud;
                 memcpy((uint8_t *)pa_list->address, &value_ud, pa_list->size);
                 if (value_d < 0)
                 {
                     *((uint8_t *)pa_list->address + pa_list->size - 1) |= 0x80;
                 }
-                rt_kprintf("set index: %d, to value:%ld\r\n", index, value_d);
+								char buff[32];
+                memset(buff, 0, 32);
+                sprintf(buff, "set index: %d, to value:%lld \r\n", index, value_d);
+                rt_kprintf("%s \r\n", buff);
             }
             else if (pa_list->type[0] == 'u')
             {
-                long int value_u = (float)atol(argv[4]);
+                long long value_u = atoll(argv[4]);
                 memcpy((uint8_t *)pa_list->address, &value_u, pa_list->size);
-                rt_kprintf("set index: %d, to value:%ld\r\n", index, value_u);
+                char buff[32];
+                memset(buff, 0, 32);
+                sprintf(buff, "set index: %d, to value:%lld \r\n", index, value_u);
+                rt_kprintf("%s \r\n", buff);
             }
             else if (pa_list->type[0] == 's')
             {
